@@ -1,0 +1,15 @@
+.plit{
+    margin: 20px;
+    display: flex;
+    flex-wrap:wrap;
+    background-color: black;
+    align-content: flex-start;
+}
+
+.box-plit{
+    margin: 20px;
+}
+
+.workpiece{
+    background-color: aqua;
+}
