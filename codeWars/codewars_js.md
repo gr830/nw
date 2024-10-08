@@ -137,3 +137,12 @@ Array.prototype.filter = function(func) {
 };
 ```
 
+Number.prototype.times, который принимает функцию f в качестве аргумента и выполняет ее столько раз, сколько раз равно целому числу, для которого она вызвана например, (100).times
+```js
+Number.prototype.times = function (f) {
+  for (let i = 0; i < this; i++) {
+    f(i);
+  }
+}
+```
+
