@@ -146,3 +146,34 @@ Number.prototype.times = function (f) {
 }
 ```
 
+Возвращает новый массив, содержащий только квадраты чисел, которые появились во входном массиве.
+```js
+let squaresOnly = a => a.filter(e => !(e ** 0.5 % 1));
+```
+
+Вам дана программа sumSquares, которая принимает массив в качестве входных данных и возвращает сумму квадратов каждого элемента в массиве
+```js
+const sumSquares = (array) => array.reduce( (acc,el) => {
+    return acc += el ** 2
+},0)
+```
+
+Сократите его так, чтобы он соответствовал строгим требованиям к количеству символов для этого Ката.
+```js
+class Labrador extends Dog {
+  constructor(name, age, gender, master) {
+    super(name, age, gender, "Labrador", 'Large', master, true)
+  }
+}
+```
+
+Напишите функцию, которая будет брать количество лепестков каждого цветка и возвращать true, если они влюблены, и false, если нет.
+```js
+function lovefunc(f1, f2){
+    const flower1 = f1 % 2 === 0
+    const flower2 = f2 % 2 === 0
+
+    return flower1 === true && flower2 === false ||  flower1 === false && flower2 === true ? true : false
+}
+console.log(lovefunc(2,2))// false
+```
