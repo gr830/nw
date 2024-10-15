@@ -1072,3 +1072,106 @@ parent.replaceChild(newEl, oldEl) // заменяет узел
 parent.insertBefore(elem, nextSibling) // вставляет узел
 ```
 
+## Свойства элементов
+
+У DOM-элементов можно узнать, к какому типу принадлежит узел
+- 1 — ELEMENT_NODE,
+- 3 — TEXT_NODE
+
+<div id="container"><span>Привет всем!</span>Aloha!</div>
+
+```jsx
+const container = document.getElementById('container');
+console.log(container.firstChild.nodeType); // 1
+console.log(container.lastChild.nodeType); // 3 
+```
+
+У примера выше есть подвох. Если внутри div перенести элемент span на новую строчку, то первый console.log вернёт 3. Почему? Потому что переносы строк и пробелы будут восприниматься как текст. Будьте внимательны.
+
+У элемента есть ещё два важных свойства — tagName, innerHTML:
+```jsx
+<h1>Ссылка: <a href="/">тут</a></h1>
+element.tagName // имя тега
+h1.tagName // "H1"
+```
+
+Основные особенности других свойств:
+
+- node.tagName:возвращает HTML-тег в UPPERCASE,
+работает только для элемента.
+
+- node.nodeName:для элемента вернёт tagName в UPPERCASE,
+для типа узла TEXT_NODE — строку #text.
+
+- element.innerHTML: вернёт содержимое в виде строки,
+доступны как геттер, так и сеттер,
+всегда только перезаписывается,
+если в innerHTML добавят тег script — он не выполнится.
+
+- element.outerHTML:содержит HTML-элемент целиком,
+при записи в DOM — исходный элемент заменяется на новый,
+изменить outerHTML элемента невозможно.
+
+```jsx
+let div = document.querySelector('div');
+console.log(div); // <div>Привет</div>
+
+div.innerHTML = 'Hi!'
+console.log(div); // <div>Hi!</div>
+
+div.outerHTML = '<h1>Aloha</h1>'
+console.log(div) // <div>Hi!</div>
+```
+
+- data.nodeValue: содержимое узла или комментария,
+можно изменить,
+у некоторых типов узлов значение равно null — вопреки ожиданиям.
+
+```jsx
+console.log(document.firstChild.data); // Комментарий
+console.log(document.firstChild.nodeValue); // Комментарий
+
+console.log(document.lastChild.data); // undefined
+console.log(document.lastChild.nodeValue); // null
+```
+
+- textContent: безопасный способ добавить текст — в большинстве случаев лучше использовать его.
+```jsx
+//<h1>Ссылка: <a href="/">тут</a></h1>
+element.textContent // Содержит только текст внутри элемента без тегов
+h1.textContent // "Ссылка: "
+```
+
+Не используйте innerHTML для вставки контента. Этот способ откроет в приложении XSS-уязвимость. Если innerHTML необходим, не забудьте экранировать символы. 
+
+**Атрибуты**
+
+```jsx
+element.hasAttribute(name) // проверяет наличие атрибута
+element.getAttribute(name) // получает значение атрибута
+element.setAttribute(name, value) // устанавливает атрибут
+element.removeAttribute(name) // удаляет атрибут
+ 
+elem.attributes // получить все атрибуты
+```
+
+Атрибут hidden может принимать следующие значения:
+- true — элемент не виден на экране,
+- false — элемент виден на экране.
+
+Для работы с классами используются следующие методы:
+- className — возвращает класс в виде строки,
+- classList — возвращает объект для работы с классами,
+- classList.[add/remove] — добавить/удалить класс,
+- classList.toggle — переключает класс,
+- classList.contains — проверяет, есть ли класс.
+
+В атрибуты можно добавить дополнительную информацию, которую удобно было бы передавать через DOM. Например, состояния дополнительного элемента или значения, которые можно получить позже. Для этого пользуются дата-атрибутами — data-*:
+```html
+<div data-chat-id="123" data-some-meta="meta-info"></div>
+```
+все data-* атрибуты доступны в объекте dataset,
+префикс data- отбрасывается, оставшаяся часть трансформируется в camelCase. Так data-user-location доступен в element.dataset.userLocation.
+
+
+
