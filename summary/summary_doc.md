@@ -886,3 +886,189 @@ console.log(arr);
 //+ [1, 10, 100, 9] ,Почему результат сортировки выглядит так, будто что-то пошло не так? На самом деле метод отсортировал элементы, но сначала преобразовал их в строки, а потом расставил в порядке следования кодовых символов Unicode. Если нужно задать определенный порядок сортировки, важно в качестве аргумента передать методу sort колбэк.
 ```
 
+## DOM API
+
+В JavaScript есть специальный объект, который содержит все глобальные переменные и функции. Это «глобальный объект»:
+- в NodeJS это global,
+- в браузере — window и this, который ссылается на window в глобальной области видимости.
+
+Все глобальные переменные и функции — это его свойства. То есть присваивая или читая глобальную переменную, мы работаем со свойствами глобального объекта.
+
+Существует несколько видов объектов:
+- Нативные — поведение и свойства которых описаны в спецификации языка и не зависят от окружения: Object, Array, Date, eval.
+- Хост-объекты — которые предоставляются окружением. В браузере это document, location, setInterval. В NodeJS — process.
+
+**BOM**
+![рис_1](./imgs/рис_1.png)
+
+BOM (Browser Object Model) — объекты, методы и свойства для работы с браузером:
+- navigator — информация о браузере,
+- location — информация про адресную строку и различные свойства,
+- history — возможность работать с переходами и историей переходов,
+- screen — информация об экране пользователя,
+- стандартные функции alert, prompt или XMLHttpRequest.
+
+**DOM**
+
+DOM (Document Object Model) — интерфейс (API) для HTML или XML документов.
+
+DOM представляет документ в виде дерева. Это проводник от веб-страницы до JavaScript, который позволяет изменять контент, стили и структуру документа.
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="description" content="description">
+		<title>Title</title>
+	</head>
+		<body>
+		<p>Привет, <span>студент</span> Практикума</p>
+		<div>
+			<img src="./logo" alt="Логотип">
+		</div>
+	</body>
+</html>
+```
+
+![рис_2](./imgs/рис_2.png)
+
+Типы узлов
+В DOM 12 видов узлов. Основные из них:
+- document,
+- теги,
+- текст,
+- комментарии.
+
+**Зачем нужен DOM**
+
+Он нужен, чтобы производить манипуляции над страницей:
+- читать информацию из HTML,
+- создавать элементы,
+- изменять элементы,
+- удалять элементы.
+
+```js
+document; // Хост-объект
+document.documentElement; // узел HTML
+document.header // узел HEAD
+```
+
+## Работа с узлами
+
+**Перебор узлов**
+
+```js
+element.parentNode // родитель
+ 
+element.childNodes // дочерние ноды
+element.firstChild // первый ребёнок
+element.lastChild // последний ребёнок
+ 
+document.previousSibling // предыдущий «сосед»
+document.nextSibling // следующий «сосед»
+
+//находит элемент с заданным идентификатором ноды,
+//возвращает первый найденный элемент,
+//возвращает null, если элемент не найден
+document.getElementById('id')
+```
+
+В общем случае для поиска и управления элементами используйте классы.
+- находит элемент с соответствующим классом,
+- метод определён у любого элемента,
+- возвращает коллекцию.
+```js
+<div class="hello">
+ <div class="greeting">Hello everybody!</div>
+ <div class="greeting">Aloha</div>
+</div>
+<div class="greeting">Привет</div>
+
+document.getElementsByClassName('greeting'); // 3 элемента
+const parent = document.getElementsByClassName('hello')[0];
+parent.getElementsByClassName('greeting'); // 2 элемента
+```
+
+document.getElementsByTagName('tag'):
+- находит элемент с соответствующим тегом,
+- метод определён у любого элемента,
+- возвращает коллекцию.
+```jsx
+<div>
+ <span>Hello everybody!</span>
+ <span>Aloha</span>
+</div>
+<span>Goodbye</span>
+
+document.getElementsByTagName('span'); // 3 элемента
+const parent = document.getElementsByTagName('div')[0];
+const elems = parent.getElementsByTagName('span'); // 2 элемента
+```
+
+document.querySelectorAll('selector'):
+- можно работать с псевдоселекторами (:hover, :first-child…),
+- возвращает коллекцию,
+- выбрасывает исключение при невалидном селекторе.
+```jsx
+<div class="container">
+ <div>Hello everybody!</div>
+ <div>Aloha</div>
+</div>
+<div class="container">
+ <div>Goodbye</div>
+ <div>Aloha</div>
+</div>
+
+document.querySelectorAll('.container div:first-child');
+// NodeList [ <div>Hello everybody!</div>, <div>Goodbye</div> ]
+```
+
+document.querySelector('selector'):
+- возвращает первый найденный элемент по заданному селектору,
+- выбрасывает исключение при невалидном селекторе.
+```jsx
+<div class="greeting">Goodbye</div>
+<div class="container">
+ <div class="greeting">Hello everybody!</div>
+ <div class="greeting">Aloha</div>
+</div>
+
+document.querySelector('.greeting');
+// <div class="greeting">Goodbye</div>
+document.querySelector('.container .greeting');
+// <div class="greeting">Hello everybody!</div>
+```
+
+closest('selector'):
+- возвращает ближайший родительский элемент (или сам элемент), который соответствует заданному CSS-селектору,
+возвращает null, если нет элемента, который соответствует селектору,
+- при невалидном селекторе выбрасывает исключение,
+- недоступен в IE и старых версиях браузеров.
+```jsx
+<div id="block" title="Я - блок">
+ <a href="#">Я ссылка в никуда</a>
+ <a href="http://site.ru">Я ссылка на сайт</a>
+ <div>
+ <div id="too"></div>
+ </div>
+</div>
+
+const div = document.querySelector("#too");
+div.closest("#block"); //<div id="block" title="Я - блок">
+div.closest("div"); //Сам <div id="too">
+div.closest("a"); //null
+```
+
+**Создание элементов**
+
+```jsx
+document.createElement(tag) // создаёт элемент с тегом tag
+document.createTextNode(value) // создаёт текстовый узел
+element.cloneNode(deep) // клонирует элемент
+ 
+parent.appendChild(el) // вставляет узел в конец
+parent.removeChild(el) // удаляет узел
+parent.replaceChild(newEl, oldEl) // заменяет узел
+parent.insertBefore(elem, nextSibling) // вставляет узел
+```
+
