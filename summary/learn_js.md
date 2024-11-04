@@ -3395,5 +3395,216 @@ alert( `Цикл отработал за ${end - start} миллисекунд` 
 **Date.now()**
 - Если нужно просто измерить время, объект Date нам не нужен.
 - Существует особый метод Date.now(), возвращающий текущую метку времени.
+- он эквивалентен new Date().getTime()
 
+```js
+let start = Date.now(); // количество миллисекунд с 1 января 1970 года
+```
 
+**Бенчмаркинг**
+
+- Для получения наиболее достоверных результатов тестирования производительности весь набор бенчмарков нужно запускать по нескольку раз.
+- Собственными средствами JavaScript измерять время в микросекундах
+- в браузерах есть метод performance.now(), возвращающий количество миллисекунд с начала загрузки страницы с точностью до микросекунд
+
+```js
+alert(`Загрузка началась ${performance.now()}мс назад`);
+// Получаем что-то вроде: "Загрузка началась 34731.26000000001мс назад"
+// .26 –- это микросекунды (260 микросекунд)
+// корректными являются только первые три цифры после точки, а остальные -- это ошибка точности
+```
+
+**Разбор строки с датой**
+
+```js
+let ms = Date.parse('2012-01-26T13:51:50.417-07:00');
+alert(ms); // 1327611110417 (таймстамп)
+```
+
+### Формат JSON, метод toJSON
+
+JSON (JavaScript Object Notation) – это общий формат для представления значений и объектов
+- JSON.stringify для преобразования объектов в JSON.
+- JSON.parse для преобразования JSON обратно в объект.
+
+JSON поддерживает следующие типы данных:
+- Объекты { ... }
+- Массивы [ ... ]
+- Примитивы:
+- строки,
+- числа,
+- логические значения true/false,
+- null.
+
+JSON.stringify пропускает некоторые специфические свойства объектов JavaScript
+- Свойства-функции (методы).
+- Символьные ключи и значения.
+- Свойства, содержащие undefined.
+```js
+let user = {
+  sayHi() { // будет пропущено
+    alert("Hello");
+  },
+  [Symbol("id")]: 123, // также будет пропущено
+  something: undefined // как и это - пропущено
+};
+alert( JSON.stringify(user) ); // {} (пустой объект)
+```
+
+Важное ограничение: не должно быть циклических ссылок.
+```js
+let room = {
+  number: 23
+};
+
+let meetup = {
+  title: "Conference",
+  participants: ["john", "ann"]
+};
+
+meetup.place = room;       // meetup ссылается на room
+room.occupiedBy = meetup; // room ссылается на meetup
+
+JSON.stringify(meetup); // Ошибка: Преобразование цикличной структуры в JSON
+```
+
+**Исключаем и преобразуем: replacer**
+- value Значение для кодирования.
+- replacer Массив свойств для кодирования или функция соответствия function(key, value).
+- space Дополнительное пространство (отступы), используемое для форматирования.
+
+```js
+let json = JSON.stringify(value[, replacer, space])
+```
+
+Если мы передадим ему массив свойств, будут закодированы только эти свойства
+```js
+let room = {
+  number: 23
+};
+
+let meetup = {
+  title: "Conference",
+  participants: [{name: "John"}, {name: "Alice"}],
+  place: room // meetup ссылается на room
+};
+
+room.occupiedBy = meetup; // room ссылается на meetup
+
+alert( JSON.stringify(meetup, ['title', 'participants']) );
+// {"title":"Conference","participants":[{},{}]}
+```
+
+в качестве replacer мы можем использовать функцию, а не массив
+```js
+JSON.stringify(meetup, function replacer(key, value) {
+  alert(`${key}: ${value}`);
+  return (key == 'occupiedBy') ? undefined : value;
+})
+// :             [object Object]
+// title:        Conference
+```
+
+**Форматирование: space**
+
+```js
+let user = {
+  name: "John",
+  age: 25,
+  roles: {
+    isAdmin: false,
+    isEditor: true
+  }
+};
+
+alert(JSON.stringify(user, null, 2));
+/* отступ в 2 пробела:
+{
+  "name": "John",
+  "age": 25,
+  "roles": {
+    "isAdmin": false,
+    "isEditor": true
+  }
+}
+*/
+
+/* для JSON.stringify(user, null, 4) результат содержит больше отступов:
+{
+    "name": "John",
+    "age": 25,
+    "roles": {
+        "isAdmin": false,
+        "isEditor": true
+    }
+}
+*/
+```
+
+**«toJSON»**
+
+```js
+alert( JSON.stringify(meetup) );
+/*
+  {
+    "title":"Conference",
+    "date":"2017-01-01T00:00:00.000Z",  // (1)
+    "room": {"number":23}               // (2)
+  }
+*/
+```
+
+**JSON.parse**
+
+- str JSON для преобразования в объект.
+- reviver Необязательная функция, которая будет вызываться для каждой пары (ключ, значение) и может преобразовывать значение.
+
+```js
+let user = '{ "name": "John", "age": 35, "isAdmin": false, "friends": [0,1,2,3] }';
+user = JSON.parse(user);
+alert( user.friends[1] ); // 1
+```
+
+типичные ошибки
+```js
+let json = `{
+  name: "John",                     // Ошибка: имя свойства без кавычек
+  "surname": 'Smith',               // Ошибка: одинарные кавычки в значении (должны быть двойными)
+  'isAdmin': false,                 // Ошибка: одинарные кавычки в ключе (должны быть двойными)
+  "birthday": new Date(2000, 2, 3), // Ошибка: не допускается конструктор "new", только значения
+  "gender": "male"                  // Ошибка: отсутствует запятая после непоследнего свойства
+  "friends": [0,1,2,3],             // Ошибка: не должно быть запятой после последнего свойства
+}`;
+```
+
+! JSON не поддерживает комментари
+
+**Использование reviver**
+
+- функцию восстановления вторым аргументом, которая возвращает все значения
+
+meetup.date является строка, а не Date объект
+```js
+//работает и для вложенных объектов
+let schedule = `{
+  "meetups": [
+    {"title":"Conference","date":"2017-11-30T12:00:00.000Z"},
+    {"title":"Birthday","date":"2017-04-18T12:00:00.000Z"}
+  ]
+}`;
+
+schedule = JSON.parse(schedule, function(key, value) {
+  if (key == 'date') return new Date(value);
+  return value;
+});
+
+alert( schedule.meetups[1].date.getDate() ); // 18 - отлично
+```
+
+## Продвинутая работа с функциями
+
+### Рекурсия и стек
+
+```js
+
+```
