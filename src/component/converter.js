@@ -13,7 +13,7 @@ export const Converter = () => {
 
     return (
         <div className={"box-converter"}>
-            <input placeholder="введите значение" className={"input"} value={input} onChange={(e) => setInput(e.target.value)}></input>
+            <input placeholder="вставте строку с таблицы нормирование до Tшт." className={"input"} value={input} onChange={(e) => setInput(e.target.value)}></input>
             <button className={"btn"} onClick={changeText}>Click</button>
             <p className={"text"}>{text}</p>
         </div>
